@@ -1,5 +1,5 @@
 import torch
-import subproccess
+import subprocess
 import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -20,38 +20,47 @@ def collate(batch):
 
 dX = "18KMxHJujq8Nb3SIMMFPHvTvQ3oBJtqXZ"
 if not os.path.exists("./dataX.npy"):
-    subproccess.run(["wget", "--no-check-certificate", \
+    subprocess.run(["wget", "--no-check-certificate", \
                      f"https://docs.google.com/uc?export=download&id={dX}", \
-                     "-O", "dataX.npy"]
+                     "-O", "dataX.npy"])
 dY = "1sArcVn6WCftYdtRmziy8t7V6D8Dr3Vhd"
 if not os.path.exists("./dataY.npy"):
-    subproccess.run(["wget", "--no-check-certificate", \
+    subprocess.run(["wget", "--no-check-certificate", \
                      f"https://docs.google.com/uc?export=download&id={dY}", \
-                     "-O", "dataY.npy"]
+                     "-O", "dataY.npy"])
 
 dataset = ExtexifyDataset("./dataX.npy", "./dataY.npy")
-dataloader = DataLoader(dataset, batch_size = 16,\
+dataloader = DataLoader(dataset, batch_size = 512,\
                         shuffle = True, collate_fn = collate)
 model = Model()
+model.cuda()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters())
-total = 0
-correct = 0
-i = 0
-for x, y in tqdm(dataloader):
-    i += 1
-    optimizer.zero_grad()
+for epoch in range(10):
+    total = 0
+    correct = 0
+    i = 0
+    bar = tqdm(dataloader)
+    for x, y in bar:
+        x = x.cuda()
+        y = y.cuda()
 
-    out = model(x)
-    loss = criterion(out, y)
+        i += 1
+        optimizer.zero_grad()
 
-    loss.backward()
-    optimizer.step()
+        out = model(x)
+        loss = criterion(out, y)
 
-    total += len(x)
-    correct += (torch.argmin(out) == y).sum()
-    if i % 5 == 0:
-        print(f"{correct / total:.2f}")
-        print(correct)
+        loss.backward()
+        optimizer.step()
+
+        total += len(x)
+        c = (torch.argmax(out, dim = 1) == y).sum().item()
+        correct += c
+
+        bar.set_postfix({"correct": c, "acc": correct / total})
+
+
+
 
 
