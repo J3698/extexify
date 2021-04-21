@@ -1,14 +1,11 @@
 import torch
-import subprocess
 import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from prep_data import ExtexifyDataset
+from prep_data import ExtexifyDataset, download_dataset
 from tqdm import tqdm
 from torch.nn.utils.rnn import pack_sequence, pad_packed_sequence
-import os
 from models import *
-
 
 
 def collate(batch):
@@ -18,32 +15,27 @@ def collate(batch):
     return packed_x, y
 
 
-dX = "18KMxHJujq8Nb3SIMMFPHvTvQ3oBJtqXZ"
-if not os.path.exists("./dataX.npy"):
-    subprocess.run(["wget", "--no-check-certificate", \
-                     f"https://docs.google.com/uc?export=download&id={dX}", \
-                     "-O", "dataX.npy"])
-dY = "1sArcVn6WCftYdtRmziy8t7V6D8Dr3Vhd"
-if not os.path.exists("./dataY.npy"):
-    subprocess.run(["wget", "--no-check-certificate", \
-                     f"https://docs.google.com/uc?export=download&id={dY}", \
-                     "-O", "dataY.npy"])
-
+download_dataset()
+batch_size = 512 if torch.cuda.is_available() else 2
 dataset = ExtexifyDataset("./dataX.npy", "./dataY.npy")
-dataloader = DataLoader(dataset, batch_size = 512,\
+dataloader = DataLoader(dataset, batch_size = batch_size,\
                         shuffle = True, collate_fn = collate)
+
 model = Model()
-model.cuda()
+if torch.cuda.is_available():
+    model.cuda()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters())
 for epoch in range(10):
     total = 0
     correct = 0
+    correct5 = 0
     i = 0
     bar = tqdm(dataloader)
     for x, y in bar:
-        x = x.cuda()
-        y = y.cuda()
+        if torch.cuda.is_available():
+            x = x.cuda()
+            y = y.cuda()
 
         i += 1
         optimizer.zero_grad()
@@ -55,12 +47,15 @@ for epoch in range(10):
         optimizer.step()
 
         total += len(x)
+
         c = (torch.argmax(out, dim = 1) == y).sum().item()
+
+        top5 = torch.topk(out, 5, dim = 1).indices
+        assert top5.shape == (x.shape[0], 5)
+        c5 = torch.any(top5 == y[:, None], dim = 1).sum().item()
+
         correct += c
+        correct5 += c5
 
-        bar.set_postfix({"correct": c, "acc": correct / total})
-
-
-
-
-
+        bar.set_postfix({"correct": c, "top1": correct / total,
+                         "top5": correct5 / total})
