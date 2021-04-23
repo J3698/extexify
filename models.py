@@ -2,14 +2,16 @@ import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_sequence, pad_packed_sequence
 
+
 class Model(nn.Module):
-    def __init__(self, num_classes = 1098, hidden_size = 64):
+    def __init__(self, hidden_size = 64, num_layers = 2, bidirectional = True, num_classes = 1098):
         super().__init__()
-        self.lstm = nn.LSTM(4, hidden_size, 2, bidirectional = True, batch_first = True)
-        self.linear = nn.Linear(2 * hidden_size, num_classes)
+        self.lstm = nn.LSTM(4, hidden_size, num_layers, bidirectional = bidirectional, batch_first = True)
+        self.linear = nn.Linear((2 if bidirectional else 1) * hidden_size, num_classes)
 
         self.num_classes = num_classes
         self.hidden_size = hidden_size
+        self.num_layers = num_layers
 
 
     def forward(self, x):
