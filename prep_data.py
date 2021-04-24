@@ -56,10 +56,12 @@ class ExtexifyDataset(torch.utils.data.Dataset):
         print("Loaded data")
 
         assert all([i.shape[1] == 4 for s in strokes for i in s])
-        self.strokes = [torch.tensor(np.vstack(inst)).float() for inst in strokes]
-        for stroke in self.strokes:
-            stroke[:, :3] -= stroke[:, :3].min(dim = 0).values
-            stroke[:, :3] /= (stroke[:, :3].max(dim = 0).values + 1e-15)
+        self.strokes = [torch.tensor(np.delete(np.vstack(inst), 2, axis = 1)).float() \
+                        for inst in strokes]
+        for i, stroke in enumerate(self.strokes):
+            stroke[:, :2] -= stroke[:, :2].min(dim = 0).values
+            stroke[:, :2] /= (stroke[:, :2].max(dim = 0).values + 1e-15)
+
         print("Processed strokes")
 
         labels_dict = {l: i for i, l in enumerate(sorted(set(labels)))}

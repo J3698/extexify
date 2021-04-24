@@ -16,7 +16,7 @@ def main():
     criterion = nn.CrossEntropyLoss()
     train_loader, val_loader, test_loader = dataloaders(batch_size)
 
-    models = [Model1()]
+    models = [Model(128)]
     for model in models:
         print(model.num_layers, model.hidden_size)
         optimizer = optim.Adam(model.parameters())
@@ -38,6 +38,7 @@ def train_model(run_name, model, criterion, optimizer, scheduler,\
         if top5 > best_top5:
             best_top5 = top5
             save(f"{run_name}.pt", model, optimizer, scheduler, e)
+            print("Saved model")
 
         train_epoch(model, optimizer, criterion, train_loader, scheduler)
 
