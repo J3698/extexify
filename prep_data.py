@@ -32,7 +32,8 @@ def dataloaders(batch_size):
         dataset.split_train_val_test(0.7, 0.2, 0.1)
 
     dataloader_train = DataLoader(dataset_train, batch_size = batch_size,\
-                                  shuffle = True, collate_fn = collate)
+                                  shuffle = True, collate_fn = collate,
+                                  num_workers = os.cpu_count())
     dataloader_val = DataLoader(dataset_val, batch_size = batch_size,\
                                 shuffle = False, collate_fn = collate)
     dataloader_test = DataLoader(dataset_test, batch_size = batch_size,\
@@ -88,7 +89,7 @@ class ExtexifyDataset(torch.utils.data.Dataset):
     def split(self, percent_train):
         x_train, x_test, y_train, y_test = \
             train_test_split(self.strokes, self.labels, \
-                             train_size = percent_train)
+                             train_size = percent_train, random_state = 13)
         train = ExtexifyDataset(strokes_labels = [x_train, y_train])
         test = ExtexifyDataset(strokes_labels = [x_test, y_test])
         return train, test

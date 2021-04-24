@@ -16,12 +16,13 @@ def main():
     criterion = nn.CrossEntropyLoss()
     train_loader, val_loader, test_loader = dataloaders(batch_size)
 
-    models = [Model(h, l) for l in range(1, 4) for h in [32, 64, 128, 256]]
+    models = [Model1()]
     for model in models:
         print(model.num_layers, model.hidden_size)
         optimizer = optim.Adam(model.parameters())
         scheduler = lr_scheduler.StepLR(optimizer, step_size)
-        train_model(str(modeltype), model, criterion, optimizer, \
+        run_name = f"{model.hidden_size}-{model.num_layers}"
+        train_model(run_name, model, criterion, optimizer, \
                     scheduler, epochs, train_loader, val_loader, test_loader)
         print()
 
@@ -38,7 +39,7 @@ def train_model(run_name, model, criterion, optimizer, scheduler,\
             best_top5 = top5
             save(f"{run_name}.pt", model, optimizer, scheduler, e)
 
-        train_epoch(model, optimizer, criterion, train_loader)
+        train_epoch(model, optimizer, criterion, train_loader, scheduler)
 
 
 def save(filename, model, optimizer, scheduler, epoch):
@@ -65,17 +66,12 @@ def train_epoch(model, optimizer, criterion, train_loader, scheduler):
 
         out = model(x)
         loss = criterion(out, y)
-
         loss.backward()
         optimizer.step()
 
         total += len(y)
-        c = (torch.argmax(out, dim = 1) == y).sum().item()
-        top5 = torch.topk(out, 5, dim = 1).indices
-        c5 = torch.any(top5 == y[:, None], dim = 1).sum().item()
-        correct += c
-        correct5 += c5
-
+        correct += topk_correct(out, y, 1)
+        correct5 += topk_correct(out, y, 5)
         update_bar(bar, correct, correct5, total)
 
     scheduler.step()
@@ -96,22 +92,22 @@ def validate(model, eval_loader):
         out = model(x)
 
         total += len(y)
-        c = (torch.argmax(out, dim = 1) == y).sum().item()
-        top5 = torch.topk(out, 5, dim = 1).indices
-        c5 = torch.any(top5 == y[:, None], dim = 1).sum().item()
-        correct += c
-        correct5 += c5
-
+        correct += topk_correct(out, y, 1)
+        correct5 += topk_correct(out, y, 5)
         update_bar(bar, correct, correct5, total)
 
     return correct / total, correct5 / total
 
 
 def update_bar(bar, correct, correct5, total):
-    postfix = {"correct": c,\
-               "top1": 100 * correct / total,\
+    postfix = {"top1": 100 * correct / total,\
                "top5": 100 * correct5 / total}
     bar.set_postfix(postfix)
+
+
+def topk_correct(out, y, k):
+    topk = torch.topk(out, k, dim = 1).indices
+    return torch.any(topk == y[:, None], dim = 1).sum().item()
 
 
 if __name__ == "__main__":
