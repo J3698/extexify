@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torch.nn.utils.rnn import pack_sequence, pad_packed_sequence
+from torch.nn.utils.rnn import pack_sequence, pad_packed_sequence, PackedSequence
 
 
 class Model(nn.Module):
@@ -17,7 +17,13 @@ class Model(nn.Module):
 
     def forward(self, x):
         h, _ = self.lstm(x)
-        h_unp, lens_unp = pad_packed_sequence(h, batch_first = True)
+
+        if isinstance(h, PackedSequence):
+            h_unp, lens_unp = pad_packed_sequence(h, batch_first = True)
+        else:
+            h_unp = h
+            lens_unp = torch.tensor(len(h))
+
         B, T, _ = h_unp.shape
         lasts = h_unp[torch.arange(B), lens_unp - 1]
 
