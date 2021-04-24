@@ -55,8 +55,10 @@ def train_epoch(model, optimizer, criterion, train_loader, scheduler):
     total = 0
     correct = 0
     correct5 = 0
-    bar = tqdm(train_loader)
 
+    model.train()
+
+    bar = tqdm(train_loader)
     for x, y in bar:
         if torch.cuda.is_available():
             x = x.cuda()
@@ -82,8 +84,10 @@ def validate(model, eval_loader):
     total = 0
     correct = 0
     correct5 = 0
-    bar = tqdm(eval_loader)
 
+    model.eval()
+
+    bar = tqdm(eval_loader)
     for x, y in bar:
         if torch.cuda.is_available():
             x = x.cuda()
