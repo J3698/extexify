@@ -6,7 +6,7 @@ from torch.nn.utils.rnn import pack_sequence, pad_packed_sequence
 class Model(nn.Module):
     def __init__(self, hidden_size = 64, num_layers = 2, bidirectional = True, num_classes = 1098):
         super().__init__()
-        self.lstm = nn.LSTM(4, hidden_size, num_layers, bidirectional = bidirectional, \
+        self.lstm = nn.LSTM(3, hidden_size, num_layers, bidirectional = bidirectional, \
                         batch_first = True)
         self.linear = nn.Linear((2 if bidirectional else 1) * hidden_size, num_classes)
 
