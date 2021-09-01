@@ -46,29 +46,10 @@ class ExtexifyDataset(torch.utils.data.Dataset):
     def __init__(self, strokes_file = "trainX.npy",\
                        labels_file = "trainY.npy",\
                        strokes_labels = None):
-
         if strokes_labels is not None:
             self.strokes, self.labels = strokes_labels
-            return
-
-        strokes = np.load(strokes_file, allow_pickle = True)
-        labels = np.load(labels_file, allow_pickle = True)
-        print("Loaded data")
-
-        assert all([i.shape[1] == 4 for s in strokes for i in s])
-        self.strokes = [torch.tensor(np.delete(np.vstack(inst), 2, axis = 1)).float() \
-                        for inst in strokes]
-        for i, stroke in enumerate(self.strokes):
-            stroke[:, :2] -= stroke[:, :2].min(dim = 0).values
-            stroke[:, :2] /= (stroke[:, :2].max(dim = 0).values + 1e-15)
-
-        print("Processed strokes")
-
-        labels_dict = {l: i for i, l in enumerate(sorted(set(labels)))}
-        self.labels = torch.tensor([labels_dict[i] for i in labels])
-        print("Processed labels")
-
-        assert len(self.strokes) == len(self.labels)
+        else:
+            self.strokes, self.labels = load_and_process_data()
 
 
     def __len__(self):

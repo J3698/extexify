@@ -1,0 +1,17 @@
+{
+  "name": "Getting Started Example",
+  "description": "Build an Extension!",
+  "version": "1.0",
+  "manifest_version": 2,
+
+  "content_scripts": [{
+    "js": ["content.js"],
+    "css": ["style.css"],
+    "matches": ["https://www.overleaf.com/project/*"]
+  }],
+
+  "permissions": [
+    "*://localhost/*",
+    "webRequest"
+  ]
+}

@@ -1,0 +1,87 @@
+.detexify-pane {
+    position: absolute;
+    z-index: 6;
+    top: 0;
+    left: 0;
+    width: calc(100% - 17px);
+    background-color: white;
+    text-align: center;
+    font-style: italic;
+    color: gray;
+    padding-top: 15px;
+    padding: 8px;
+
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s 0s, opacity 100ms;
+}
+
+#detexify-canvas {
+    height: 35vh;
+    width: 100%;
+    box-shadow: 0px 0px 3px 0.5px rgba(150, 150, 150, 0.52);
+}
+
+.prediction {
+    box-shadow: 0px 0px 3px 0.5px rgba(150, 150, 150, 0.52);
+    text-align: center;
+    line-height: 70px;
+    font-size: 3em;
+    font-style: normal;
+    color: black;
+    margin: 0 5px;
+    width: 70px;
+    height: 70px;
+    display: inline-block;
+}
+
+.prediction:first-of-type {
+    margin-left: 0
+}
+
+.prediction-wrapper {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    text-align: center;
+    line-height: 70px;
+}
+
+.predictions {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-flow: row wrap;
+    overflow: hidden;
+    height: 80px;
+    padding-top: 5px;
+}
+
+.detexify-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 5;
+
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s 100ms, opacity 100ms;
+}
+
+.fade-out {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0s, opacity 100ms;
+}
+
+.toggle-detexify-button {
+    cursor: pointer;
+    min-width: 40px;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+

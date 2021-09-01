@@ -23,6 +23,7 @@ datasY = []
 while data != []:
     assert isinstance(data, list)
     for i in data:
+        breakpoint()
         assert isinstance(i, tuple)
         assert len(i) == 3
         assert isinstance(i[0], int), type(i[0])
