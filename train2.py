@@ -1,10 +1,13 @@
+import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
 from prep_data import dataloaders
 from tqdm import tqdm
-from models import *
 import torch.optim.lr_scheduler as lr_scheduler
+from torchvision.datasets import ImageFolder
+from torchvision.transforms import ToTensor
+from torch.utils.data import DataLoader
 
 
 batch_size = 512 if torch.cuda.is_available() else 2
@@ -14,17 +17,43 @@ step_size = 21
 
 def main():
     criterion = nn.CrossEntropyLoss()
-    train_loader, val_loader, test_loader = dataloaders(batch_size)
 
-    models = [Model(128)]
-    for model in models:
-        print(model.num_layers, model.hidden_size)
-        optimizer = optim.Adam(model.parameters())
-        scheduler = lr_scheduler.StepLR(optimizer, step_size)
-        run_name = f"{model.hidden_size}-{model.num_layers}"
-        train_model(run_name, model, criterion, optimizer, \
-                    scheduler, epochs, train_loader, val_loader, test_loader)
-        print()
+    dataset_train = ImageFolder("./images_data/train", transform = ToTensor())
+    dataset_val = ImageFolder("./images_data/val", transform = ToTensor())
+    dataset_test = ImageFolder("./images_data/test", transform = ToTensor())
+    train_loader = DataLoader(dataset_train, batch_size = batch_size,\
+                              shuffle = True, num_workers = os.cpu_count())
+    val_loader = DataLoader(dataset_val, batch_size = batch_size, shuffle = False)
+    test_loader = DataLoader(dataset_test, batch_size = batch_size, shuffle = False)
+
+    model = Model()
+    optimizer = optim.Adam(model.parameters())
+    scheduler = lr_scheduler.StepLR(optimizer, step_size)
+    run_name = "Test"
+    train_model(run_name, model, criterion, optimizer, \
+                scheduler, epochs, train_loader, val_loader, test_loader)
+
+
+class Model(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.layers = nn.Sequential(
+                nn.Conv2d(3, 16, 3, 1, 1), nn.ReLU(),
+                nn.Conv2d(16, 32, 3, 2, 1), nn.ReLU(),
+
+                nn.Conv2d(32, 32, 3, 1, 1), nn.ReLU(),
+                nn.Conv2d(32, 64, 3, 2, 1), nn.ReLU(),
+
+                nn.Conv2d(64, 64, 3, 1, 1), nn.ReLU(),
+                nn.Conv2d(64, 128, 3, 2, 1), nn.ReLU(),
+
+                nn.AdaptiveAvgPool2d((1, 1)), nn.Flatten(),
+                nn.Linear(128, 1098)
+        )
+
+    def forward(self, x):
+        return self.layers(x)
 
 
 def train_model(run_name, model, criterion, optimizer, scheduler,\
