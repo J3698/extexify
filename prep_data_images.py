@@ -7,28 +7,43 @@ from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from torch.nn.utils.rnn import pack_sequence, pad_packed_sequence
 from PIL import Image, ImageDraw
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 
 def main():
     dataset = ExtexifyDataset()
+    size = 32
+    os.mkdir(f"images{size}/")
     for i in tqdm(range(len(dataset))):
-        stroke, y = dataset[i]
-        if not os.path.exists(f"images/{y.item()}"):
-            os.mkdir(f"images/{y.item()}")
-
-        image = Image.new("L", (64, 64), color = 0)
-        draw = ImageDraw.Draw(image)
-        for j in range(len(stroke) - 1):
-            if j != 0 and stroke[j, 2] != 1:
-                if stroke[j, 2] != 0:
-                    print(stroke[j, 2])
-                p1 = (stroke[j, :2].numpy() * 64).tolist()
-                p2 = (stroke[j + 1, :2].numpy() * 64).tolist()
-                draw.line(p1 + p2, fill=255, width=1)
-        image.save(f"images/{y.item()}/{i}.png")
-
+        image, y = create_ith_image_from_dataset(dataset, size, i)
+        if not os.path.exists(f"images{size}/{y.item()}"):
+            os.mkdir(f"images{size}/{y.item()}")
+        image.save(f"images{size}/{y.item()}/{i}.png")
     print("Created dataset")
+
+
+def create_ith_image_from_dataset(dataset, size, i):
+    stroke, y = dataset[i]
+    image = create_image(size, stroke)
+    return image, y
+
+
+def create_image(size, stroke):
+    image = Image.new("L", (size, size), color = 0)
+    draw = ImageDraw.Draw(image)
+    for j in range(len(stroke) - 1):
+        if stroke[j, 2] != 1:
+            p1 = (stroke[j, :2].numpy() * size).tolist()
+            p2 = (stroke[j + 1, :2].numpy() * size).tolist()
+            draw.line(p1 + p2, fill=255, width=1)
+        else:
+            p1 = (stroke[j, :2].numpy() * size).tolist()
+            draw.point(p1, fill=255)
+
+    p1 = (stroke[-1, :2].numpy() * size).tolist()
+    draw.point(p1, fill=255)
+
+    return image
 
 
 def collate(batch):
@@ -72,6 +87,8 @@ class ExtexifyDataset(torch.utils.data.Dataset):
             for i, stroke in tqdm(enumerate(self.strokes), total = len(self.strokes)):
                 stroke[:, :2] -= stroke[:, :2].min(dim = 0).values
                 stroke[:, :2] /= (stroke[:, :2].max(dim = 0).values + 1e-15)
+                stroke[:, :2] *= 0.95
+                stroke[:, :2] += 0.025
 
             print("Processed strokes")
 
