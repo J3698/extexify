@@ -18,9 +18,9 @@ step_size = 21
 def main():
     criterion = nn.CrossEntropyLoss()
 
-    dataset_train = ImageFolder("./images_data/train", transform = ToTensor())
-    dataset_val = ImageFolder("./images_data/val", transform = ToTensor())
-    dataset_test = ImageFolder("./images_data/test", transform = ToTensor())
+    dataset_train = ImageFolder("./images_data32/train", transform = ToTensor())
+    dataset_val = ImageFolder("./images_data32/val", transform = ToTensor())
+    dataset_test = ImageFolder("./images_data32/test", transform = ToTensor())
     train_loader = DataLoader(dataset_train, batch_size = batch_size,\
                               shuffle = True, num_workers = os.cpu_count())
     val_loader = DataLoader(dataset_val, batch_size = batch_size, shuffle = False)
@@ -28,7 +28,7 @@ def main():
     breakpoint()
 
     model = Model()
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), weight_decay = 1e-4)
     scheduler = lr_scheduler.StepLR(optimizer, step_size)
     run_name = "Test"
     train_model(run_name, model, criterion, optimizer, \
@@ -40,21 +40,10 @@ class Model(nn.Module):
         super().__init__()
 
         self.layers = nn.Sequential(
-                nn.Conv2d(3, 16, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(16),
-                nn.Conv2d(16, 32, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(32),
-                nn.Conv2d(32, 32, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(32),
-                nn.Conv2d(32, 64, 3, 2, 1), nn.ReLU(), nn.BatchNorm2d(64),
-
-                nn.Conv2d(64, 64, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(64),
-                nn.Conv2d(64, 64, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(64),
+                nn.Conv2d(3, 64, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(16),
+                nn.Conv2d(64, 64, 3, 2, 1), nn.ReLU(), nn.BatchNorm2d(64),
                 nn.Conv2d(64, 128, 3, 2, 1), nn.ReLU(), nn.BatchNorm2d(128),
-
-                nn.Conv2d(128, 128, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(128),
-                nn.Conv2d(128, 128, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(128),
-                nn.Conv2d(128, 256, 3, 2, 1), nn.ReLU(), nn.BatchNorm2d(128),
-
-                nn.Conv2d(256, 256, 3, 2, 1), nn.ReLU(), nn.BatchNorm2d(256),
-                nn.Conv2d(256, 256, 3, 2, 1), nn.ReLU(), nn.BatchNorm2d(256),
+                nn.Conv2d(128, 256, 3, 2, 1), nn.ReLU(), nn.BatchNorm2d(256),
                 nn.Conv2d(256, 512, 3, 2, 1), nn.ReLU(), nn.BatchNorm2d(512),
 
                 nn.AdaptiveAvgPool2d((1, 1)), nn.Flatten(),
