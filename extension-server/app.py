@@ -5,39 +5,55 @@ from PIL import Image, ImageDraw
 import numpy as np
 import torch
 sys.path.append("..")
-#from train2 import Model
+from train2 import Model
+from torchvision.transforms import ToTensor
 
-#model = Model()
+model = Model()
+model.eval()
 state_dict = torch.load("../Test.pt", map_location = torch.device("cpu"))
-print(state_dict['model'])
-model.load_state_dict(state_dict)
+model.load_state_dict(state_dict['model'])
+size = 32
 
 app = Flask(__name__)
+
+order = sorted([str(i) for i in range(1098)])
+chars = sorted(set(np.load("../data_processed/dataY.npy")))
+def fix_predictions(output):
+    outs = [chars[int(order[i.item()])] for i in torch.topk(output, 5, dim = 1).indices[0]]
+    return ["\\" + i.split("_")[1] for i in outs]
 
 @app.route("/classify")
 def classify_symbol():
     points = json.loads(request.args.get('points'))['data']
 
     if len(points) == 1 and len(points[0]) == 0:
-        return {"top3": [" ", " ", " "]}
+        return {"top5": [" ", " ", " ", " ", " "]}
 
-    image = points_to_image(points)
-    print(model(image).shape)
+    points_to_image(points)
+    tensor = ToTensor()(Image.open("test.png").convert('RGB'))
+    #tensor = ToTensor()(
+    #            Image.open("../images_data32/train/450/105244.png").convert('RGB')
+    #         )
+    #torch.from_numpy(image).float() / 255.
+    print(tensor.min(), tensor.max())
+    tensor = torch.unsqueeze(tensor, 0)
+    output = model(tensor)
+    pred = fix_predictions(output)
+    print(pred)
 
-    return {"top3": ["A", "B", "C"]}
+    return {"top5": pred}
 
 
 def points_to_image(points):
     scale_points(points)
 
-    image = Image.new("RGB", (64, 64), color = 0)
+    image = Image.new("RGB", (size, size), color = 0)
     draw = ImageDraw.Draw(image)
     for stroke in points[:-1]:
         for i in range(len(stroke) - 1):
-            p1 = 64 * stroke[i][0], 64 * stroke[i][1]
-            p2 = 64 * stroke[i + 1][0], 64 * stroke[i + 1][1]
-            draw.line(p1 + p2, fill=255, width=1)
-        draw.point(stroke[len(stroke) - 1], fill=255)
+            p1 = size * stroke[i][0], size * stroke[i][1]
+            p2 = size * stroke[i + 1][0], size * stroke[i + 1][1]
+            draw.line(p1 + p2, fill=(255, 255, 255), width=1)
     image.save("test.png")
 
     return np.asarray(image).transpose(2, 0, 1)
