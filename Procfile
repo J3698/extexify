@@ -1,1 +1,1 @@
-web: gunicorn extension-server/app:app
+web: gunicorn extension-server.app:app
