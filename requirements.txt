@@ -1,2 +1,3 @@
 Flask==2.0.2
+Flask-Cors==3.0.10
 gunicorn==20.1.0

@@ -1,11 +1,15 @@
 
 from flask import Flask
+from flask_cors import CORS, cross_origin
 
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 @app.route("/classify")
+@cross_origin()
 def classify_symbol():
     return {"top5": ["A", "B", "C", "D", "E"]}
 
