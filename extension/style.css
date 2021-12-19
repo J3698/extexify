@@ -1,4 +1,4 @@
-.detexify-pane {
+.extexify-pane {
     position: absolute;
     z-index: 6;
     top: 0;
@@ -16,7 +16,7 @@
     transition: visibility 0s 0s, opacity 100ms;
 }
 
-#detexify-canvas {
+#extexify-canvas {
     height: 35vh;
     width: 100%;
     box-shadow: 0px 0px 3px 0.5px rgba(150, 150, 150, 0.52);
@@ -26,13 +26,16 @@
     box-shadow: 0px 0px 3px 0.5px rgba(150, 150, 150, 0.52);
     text-align: center;
     line-height: 70px;
-    font-size: 3em;
+    font-size: 0.6em;
     font-style: normal;
     color: black;
     margin: 0 5px;
     width: 70px;
     height: 70px;
     display: inline-block;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
 }
 
 .prediction:first-of-type {
@@ -57,7 +60,7 @@
     padding-top: 5px;
 }
 
-.detexify-backdrop {
+.extexify-backdrop {
     position: absolute;
     top: 0;
     left: 0;
@@ -71,17 +74,37 @@
     transition: visibility 0s 100ms, opacity 100ms;
 }
 
+.invisible {
+  visibility: hidden;
+}
+
 .fade-out {
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s 0s, opacity 100ms;
 }
 
-.toggle-detexify-button {
+.toggle-extexify-button {
     cursor: pointer;
     min-width: 40px;
     text-align: center;
     padding-left: 10px;
     padding-right: 10px;
+    width: min-content;
 }
 
+.actual {
+    display: inline-block;
+    position: absolute;
+    bottom: 0;
+    height: min-content;
+    line-height: initial;
+    width: 100%;
+    left: 0;
+    border-top: 1px solid #69696926;
+}
+
+
+.totex {
+    font-size: 200%;
+}
