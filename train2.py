@@ -2,12 +2,12 @@ import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from prep_data import dataloaders
-from tqdm import tqdm
-import torch.optim.lr_scheduler as lr_scheduler
-from torchvision.datasets import ImageFolder
-from torchvision.transforms import ToTensor
-from torch.utils.data import DataLoader
+#from prep_data import dataloaders
+#from tqdm import tqdm
+#import torch.optim.lr_scheduler as lr_scheduler
+#from torchvision.datasets import ImageFolder
+#from torchvision.transforms import ToTensor
+#from torch.utils.data import DataLoader
 
 
 batch_size = 512 if torch.cuda.is_available() else 2
