@@ -143,15 +143,17 @@ function addClassifyRequestInterval() {
         xhttp.onreadystatechange = function() {
             if (xhttp.readyState == 4 && xhttp.status == 200) {
                 let jsonResponse = JSON.parse(xhttp.responseText);
-                let [top1, top2, top3] = jsonResponse['top3'];
-                let [pred1, pred2, pred3, pred4, pred5] = document.getElementsByClassName("prediction")
+                let [top1, top2, top3, top4, top5] = jsonResponse['top5'];
+		let predictionOuts = document.getElementsByClassName("prediction")
+                let [pred1, pred2, pred3, pred4, pred5] = predictionOuts;
                 pred1.innerHTML = top1;
                 pred2.innerHTML = top2;
                 pred3.innerHTML = top3;
             }
         };
         data = encodeURIComponent(JSON.stringify({"data": points}))
-        xhttp.open("GET", "http://localhost/classify?points=" + data, true);
+        //xhttp.open("GET", "https://extexify.herokuapp.com/classify?points=" + data, true);
+        xhttp.open("GET", "http://127.0.0.1:8000/classify?points=" + data, true);
         xhttp.send(null);
     }, 1000);
 }
