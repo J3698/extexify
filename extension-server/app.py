@@ -43,15 +43,9 @@ def classify_symbol():
 
     points_to_image(points)
     tensor = ToTensor()(Image.open("test.png").convert('RGB'))
-    #tensor = ToTensor()(
-    #            Image.open("../images_data32/train/450/105244.png").convert('RGB')
-    #         )
-    #torch.from_numpy(image).float() / 255.
-    #print(tensor.min(), tensor.max())
     tensor = torch.unsqueeze(tensor, 0)
     output = model(tensor)
     pred = fix_predictions(output)
-    #print(pred)
 
     return {"top5": pred}
 
