@@ -91,6 +91,7 @@
     padding-left: 10px;
     padding-right: 10px;
     width: min-content;
+    user-select: none;
 }
 
 .actual {

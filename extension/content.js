@@ -9,11 +9,14 @@ addClassifyRequestInterval()
 addReTypesetHandler()
 
 function addExtexifyButton() {
-    document.getElementsByClassName('formatting-buttons-wrapper')[0].innerHTML = `
-      <span class="toggle-switch toggle-extexify-button" style="margin-left: 15px;">
-        extexify
-      </span>
-    `;
+    var extexifyButton = document.createElement("span");
+    extexifyButton.classList.add("toggle-switch");
+    extexifyButton.classList.add("toggle-extexify-button");
+    extexifyButton.style.marginLeft = "15px";
+    extexifyButton.style.width = "fit-content";
+    extexifyButton.innerHTML = "extexify";
+
+    document.getElementsByClassName('formatting-buttons-wrapper')[0].appendChild(extexifyButton);
 }
 
 
@@ -109,7 +112,6 @@ function addToggleExtexifyCallbacks() {
 }
 
 function toggleExtexify() {
-    console.log("toggling")
     document.getElementsByClassName("extexify-pane")[0].classList.toggle("fade-out")
     document.getElementsByClassName("extexify-backdrop")[0].classList.toggle("fade-out")
 
@@ -118,6 +120,7 @@ function toggleExtexify() {
     canvas.height = canvas.clientHeight;
 
     points = [[]];
+    updatePredictionsHTML([' ', ' ', ' ', ' ', ' ']);
 }
 
 function clearCanvas() {
@@ -188,13 +191,12 @@ function addClassifyRequestInterval() {
             }
         };
         data = encodeURIComponent(JSON.stringify({"data": points}))
-        //xhttp.open("GET", "http://localhost/classify?points=" + data, true);
 
-	//xhttp.open("GET", "https://extexify.herokuapp.com/classify?points=" + data, true);
-	xhttp.open("GET", "http://127.0.0.1:8000/classify?points=" + data, true);
+	xhttp.open("GET", "https://extexify.herokuapp.com/classify?points=" + data, true);
+	// xhttp.open("GET", "http://127.0.0.1:8000/classify?points=" + data, true);
 
         xhttp.send(null);
-    }, 150);
+    }, 50);
 }
 
 
@@ -221,11 +223,28 @@ function addReTypesetHandler() {
 function updatePredictionsHTML(topPredictions) {
     let [top1, top2, top3, top4, top5] = topPredictions;
     let [pred1, pred2, pred3, pred4, pred5] = document.getElementsByClassName("totex")
-    pred1.innerHTML = '\\(' + top1 + '\\)';
-    pred2.innerHTML = '\\(' + top2 + '\\)';
-    pred3.innerHTML = '\\(' + top3 + '\\)';
-    pred4.innerHTML = '\\(' + top4 + '\\)';
-    pred5.innerHTML = '\\(' + top5 + '\\)';
+
+    let typeset = false;
+    for (let i = 0; i < 5; i++) {
+        if (topPredictions[i] !== " ") {
+	    typeset = true;
+	}
+    }
+
+    if (typeset) {
+        pred1.innerHTML = '\\(' + top1 + '\\)';
+        pred2.innerHTML = '\\(' + top2 + '\\)';
+        pred3.innerHTML = '\\(' + top3 + '\\)';
+        pred4.innerHTML = '\\(' + top4 + '\\)';
+        pred5.innerHTML = '\\(' + top5 + '\\)';
+    } else {
+        pred1.innerHTML = top1;
+        pred2.innerHTML = top2;
+        pred3.innerHTML = top3;
+        pred4.innerHTML = top4;
+        pred5.innerHTML = top5;
+    }
+
 
     let [code1, code2, code3, code4, code5] = document.getElementsByClassName("actual")
     code1.innerHTML = top1;
@@ -234,7 +253,6 @@ function updatePredictionsHTML(topPredictions) {
     code4.innerHTML = top4;
     code5.innerHTML = top5;
 
-    console.log()
     tag = document.getElementsByClassName("invisible")[0];
     if (tag.innerHTML != "0") {
         tag.innerHTML = "0";
