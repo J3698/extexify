@@ -2,12 +2,12 @@ import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
-#from prep_data import dataloaders
-#from tqdm import tqdm
-#import torch.optim.lr_scheduler as lr_scheduler
-#from torchvision.datasets import ImageFolder
-#from torchvision.transforms import ToTensor
-#from torch.utils.data import DataLoader
+from prep_data import dataloaders
+from tqdm import tqdm
+import torch.optim.lr_scheduler as lr_scheduler
+from torchvision.datasets import ImageFolder
+from torchvision.transforms import ToTensor
+from torch.utils.data import DataLoader
 
 
 batch_size = 512 if torch.cuda.is_available() else 2
@@ -16,21 +16,25 @@ step_size = 21
 
 
 def main():
+    # loss function
     criterion = nn.CrossEntropyLoss()
 
+    # datasets
     dataset_train = ImageFolder("./images_data32/train", transform = ToTensor())
     dataset_val = ImageFolder("./images_data32/val", transform = ToTensor())
     dataset_test = ImageFolder("./images_data32/test", transform = ToTensor())
+
+    # for loading data into batches
     train_loader = DataLoader(dataset_train, batch_size = batch_size,\
                               shuffle = True, num_workers = os.cpu_count())
     val_loader = DataLoader(dataset_val, batch_size = batch_size, shuffle = False)
     test_loader = DataLoader(dataset_test, batch_size = batch_size, shuffle = False)
-    breakpoint()
 
+    run_name = "Test"
     model = Model()
     optimizer = optim.Adam(model.parameters(), weight_decay = 1e-4)
     scheduler = lr_scheduler.StepLR(optimizer, step_size)
-    run_name = "Test"
+
     train_model(run_name, model, criterion, optimizer, \
                 scheduler, epochs, train_loader, val_loader, test_loader)
 
