@@ -2,7 +2,6 @@ import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from prep_data import dataloaders
 from tqdm import tqdm
 import torch.optim.lr_scheduler as lr_scheduler
 from torchvision.datasets import ImageFolder
