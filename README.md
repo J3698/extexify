@@ -1,4 +1,4 @@
-# extexify Extension
+# extexify
 
 An extension for finding LaTeX symbols in Overleaf.
 
