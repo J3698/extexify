@@ -2,7 +2,7 @@
 
 An extension for finding LaTeX symbols in Overleaf, inspired by [detexify](https://detexify.kirelabs.org/classify.html).
 
-[How it was made (WIP)](https://antiprojects.com/extexify.html) | [Chrome Install]() | Firefox Install*
+[How it was made (WIP)](https://antiprojects.com/extexify.html) | [Chrome Install](https://chrome.google.com/webstore/detail/extexify/ohclfhjacabchmjofpmokkfmfcnigdfh/) | Firefox Install*
 
 *Coming soon
 
