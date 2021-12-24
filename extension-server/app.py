@@ -17,7 +17,6 @@ size = 32
 
 app = Flask(__name__)
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
 
 order = sorted([str(i) for i in range(1098)])
 chars = sorted(set(np.load("data_processed/dataY.npy")))
@@ -25,14 +24,12 @@ def fix_predictions(output):
     outs = [chars[int(order[i.item()])] for i in torch.topk(output, 5, dim = 1).indices[0]]
     return ["\\" + i.split("_")[1] for i in outs]
 
-@app.route("/classify")
-@cross_origin()
+@app.route("/classify", methods = ['POST'])
 def classify_symbol():
-    json_str = request.args.get('points')
-    if json_str is None:
+    json_data = request.json
+    if json_data is None:
         return {"top5": [" ", " ", " ", " ", " "]}
 
-    json_data = json.loads(json_str)
     if 'data' not in json_data:
         return {"top5": [" ", " ", " ", " ", " "]}
 

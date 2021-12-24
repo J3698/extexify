@@ -190,12 +190,11 @@ function addClassifyRequestInterval() {
                 updatePredictionsHTML(top5);
             }
         };
-        data = encodeURIComponent(JSON.stringify({"data": points}))
 
-	xhttp.open("GET", "https://extexify.herokuapp.com/classify?points=" + data, true);
-	// xhttp.open("GET", "http://127.0.0.1:8000/classify?points=" + data, true);
-
-        xhttp.send(null);
+        xhttp.open("POST", "https://extexify2.herokuapp.com/classify", true);
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+        let data = JSON.stringify({"data": points});
+        xhttp.send(data);
     }, 50);
 }
 
