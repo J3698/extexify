@@ -21,8 +21,10 @@ cors = CORS(app)
 order = sorted([str(i) for i in range(1098)])
 chars = sorted(set(np.load("data_processed/dataY.npy")))
 def fix_predictions(output):
-    outs = [chars[int(order[i.item()])] for i in torch.topk(output, 5, dim = 1).indices[0]]
-    return ["\\" + i.split("_")[1] for i in outs]
+    topk = torch.topk(output, 5, dim = 1).indices[0]
+    topk = [int(i) for i in topk.tolist()]
+    topk_chars = [chars[i] for i in topk]
+    return [i.split("-")[2].replace("_", "\\") for i in topk_chars]
 
 @app.route("/classify", methods = ['POST'])
 def classify_symbol():
