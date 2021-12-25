@@ -37,7 +37,7 @@ def classify_symbol():
     if 'data' not in json_data:
         return {"top5": [" ", " ", " ", " ", " "]}
 
-    preakoints = json_data['data']
+    points = json_data['data']
 
     if len(points) == 1 and len(points[0]) == 0:
         return {"top5": [" ", " ", " ", " ", " "]}
