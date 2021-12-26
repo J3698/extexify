@@ -7,6 +7,7 @@ clearCanvas()
 addDrawingCallbacks()
 addClassifyRequestInterval()
 addReTypesetHandler()
+addThemeChangeHandler()
 
 function addExtexifyButton() {
     var extexifyButton = document.createElement("span");
@@ -80,9 +81,7 @@ function addExtexifyPane() {
         let pred = preds[i];
         pred.onclick = function() {
             let pred2 = document.getElementsByClassName("prediction")[i]
-            console.log(pred2);
             let actual = pred2.getElementsByClassName("actual")[0];
-            console.log(actual);
             copySymbol(actual);
             toggleExtexify();
         }
@@ -131,7 +130,7 @@ function clearCanvas() {
 }
 
 let points = [[]];
-var shouldUpdate = true;
+var shouldUpdate = false;
 function addDrawingCallbacks() {
     var canvas = document.getElementById("extexify-canvas");
     var ctx = canvas.getContext("2d");
@@ -139,6 +138,7 @@ function addDrawingCallbacks() {
     var pos = {x: 0, y: 0};
 
     canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', finish);
     canvas.addEventListener('mousedown', setPosition);
     canvas.addEventListener('mouseenter', setPosition);
 
@@ -146,6 +146,13 @@ function addDrawingCallbacks() {
       var rect = canvas.getBoundingClientRect();
       pos.x = e.clientX - rect.left;
       pos.y = e.clientY - rect.top;
+    }
+
+    function finish(e) {
+      if (points[points.length - 1].length !== 0) {
+          points.push([]);
+          shouldUpdate = true;
+      }
     }
 
     function draw(e) {
@@ -156,7 +163,6 @@ function addDrawingCallbacks() {
           }
           return;
       }
-      //shouldUpdate = true;
 
       ctx.beginPath();
 
@@ -192,6 +198,7 @@ function addClassifyRequestInterval() {
         };
 
         xhttp.open("POST", "https://extexify2.herokuapp.com/classify", true);
+        // xhttp.open("POST", "http://127.0.0.1:8000/classify", true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
         let data = JSON.stringify({"data": points});
         xhttp.send(data);
@@ -218,6 +225,44 @@ function addReTypesetHandler() {
     document.body.appendChild(updateTag);
 }
 
+function addThemeChangeHandler() {
+    var script = document.createElement("script");
+    script.innerHTML = `
+    let etoolbar = document.getElementsByClassName("toolbar-header")[0];
+    // .toolbar-editor
+
+    let extexifyPane = document.getElementsByClassName('extexify-pane')[0];
+    //color: white (or gray)
+
+    let ecanvas = document.getElementById('extexify-canvas');
+    let esidebar = document.getElementsByClassName("editor-sidebar")[0];
+
+    let epreds = document.getElementsByClassName("prediction");
+
+    setInterval(function() {
+        let etoolbarStyles = window.getComputedStyle(etoolbar, null);
+        let ebackgroundColor = etoolbarStyles['background-color'];
+        extexifyPane.style.backgroundColor = ebackgroundColor;
+
+        let esidebarStyles = window.getComputedStyle(esidebar, null);
+        let ecanvasColor = esidebarStyles['background-color'];
+        ecanvas.style.backgroundColor = ecanvasColor;
+
+        let [m1, m2, m3] = ebackgroundColor.split("(")[1].split(")")[0].split(",").map(x=>+x);
+        for (const epred of epreds) {
+            if ((m1 + m2 + m3) / 3 > 127) {
+                epred.style.color = 'rgb(0, 0, 0)';
+            } else {
+                epred.style.color = 'rgb(255, 255, 255)';
+            }
+        }
+
+    }, 100);
+    `
+
+    document.body.appendChild(script);
+}
+
 
 function updatePredictionsHTML(topPredictions) {
     let [top1, top2, top3, top4, top5] = topPredictions;
@@ -226,8 +271,8 @@ function updatePredictionsHTML(topPredictions) {
     let typeset = false;
     for (let i = 0; i < 5; i++) {
         if (topPredictions[i] !== " ") {
-	    typeset = true;
-	}
+            typeset = true;
+        }
     }
 
     if (typeset) {
