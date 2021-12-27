@@ -1,2 +1,6 @@
 data/
 data_processed/
+*/__pycache__
+__pycache__
+*.swp
+*.*swp
