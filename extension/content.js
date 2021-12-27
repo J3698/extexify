@@ -39,7 +39,7 @@ function addExtexifyPane() {
             <canvas id = "extexify-canvas"></canvas>
         </div>
 
-        <div style="font-size: 80%;">Click to Copy</div>
+        <div style="font-size: 80%;">Click to Insert</div>
 
 
         <div class="predictions">
@@ -76,28 +76,37 @@ function addExtexifyPane() {
         <div>
     `
 
+
+    let script = document.createElement("script");
+    script.innerHTML = `
+        function eee(e) {
+            let elem = null;
+            for (const el of e.path) {
+                if (el.classList.contains("prediction")) {
+                    elem = el;
+                    break;
+                }
+            }
+            let actual = elem.getElementsByClassName("actual")[0];
+            let editorEl = document.getElementsByClassName('ace-editor-body')[0]
+            let editor = ace.edit(editorEl);
+            let cursorPos = editor.getCursorPosition();
+            editor.session.insert(cursorPos, actual.innerHTML);
+        }
+        const preds = document.getElementsByClassName("prediction")
+        for (let i = 0; i < 5; i++) {
+            preds[i].addEventListener("click", eee);
+        }
+    `
+    document.body.appendChild(script);
+
     const preds = document.getElementsByClassName("prediction")
     for (let i = 0; i < 5; i++) {
         let pred = preds[i];
-        pred.onclick = function() {
-            let pred2 = document.getElementsByClassName("prediction")[i]
-            let actual = pred2.getElementsByClassName("actual")[0];
-            copySymbol(actual);
-            toggleExtexify();
-        }
+        pred.addEventListener("click", toggleExtexify);
     }
 }
 
-
-function copySymbol(pred) {
-    var copyText = pred;
-    var textArea = document.createElement("textarea");
-    textArea.value = copyText.textContent;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand("Copy");
-    textArea.remove();
-}
 
 function hideExtexify() {
     document.getElementsByClassName("extexify-pane")[0].classList.add("fade-out")
